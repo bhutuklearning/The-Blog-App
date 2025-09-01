@@ -12,11 +12,11 @@ import blogRoutes from './routes/blog.route.js';
 const app = express();
 
 const PORT = process.env.PORT || 10000;
-
+connectDB();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-//connectDB();
+
 
 // Routing
 app.use("/api/v1/auth", authRoutes);
