@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import connectDB from './config/db.js';
+import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import blogRoutes from './routes/blog.route.js';
 
@@ -18,6 +19,7 @@ app.use(express.json());
 //connectDB();
 
 // Routing
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/blogs", blogRoutes);
 
