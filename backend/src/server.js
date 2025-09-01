@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 10000;
 connectDB();
 // Middleware to parse JSON bodies
 app.use(express.json());
-
+app.use(cookieParser());
 
 
 // Routing
@@ -30,6 +30,6 @@ app.get("/", (req, res, next) => {
     });
 });
 
-app.listen(PORT, (req, res, next) => {
+app.listen(PORT, "0.0.0.0", (req, res, next) => {
     console.log(`Server is running on PORT ${PORT}.`);
 });

@@ -24,7 +24,7 @@ export const register = async (req, res) => {
 
         // Create user
         const user = await User.create({
-            username,
+            name,
             email,
             password: hashedPassword,
         });
@@ -52,7 +52,7 @@ export const register = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-    res.send("User login controller is working");
+    // res.send("User login controller is working");
     try {
         const { email, password } = req.body;
 
@@ -62,7 +62,7 @@ export const login = async (req, res) => {
         }
 
         // Check if the user exists
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
             return res.status(400).json({ message: "User with this email does not exist or register first." });
@@ -76,12 +76,17 @@ export const login = async (req, res) => {
 
         if (user && isPasswordValid) {
             generateToken(res, user._id); // sets cookie
+
+            user.lastLogin = new Date().toString();
+            await user.save();
+
             res.status(200).json({
                 success: true,
                 message: "User logged in successfully",
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                lastLogin: user.lastLogin,
             });
         }
         else {
