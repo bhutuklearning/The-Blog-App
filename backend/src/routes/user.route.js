@@ -1,5 +1,5 @@
 import express from "express";
-
+import { register, login, logout } from "../controller/auth.controller";
 
 const router = express.Router();
 
@@ -7,17 +7,11 @@ router.get("/", (req, res) => {
     res.send("User route is working");
 })
 
-router.post("/register", (req, res) => {
-    res.send("User registration route is working");
-});
+router.post("/register", register);
 
-router.post("/login", (req, res) => {
-    res.send("User login route is working");
-});
+router.post("/login", login);
 
-router.post("/logout", (req, res) => {
-    res.send("User logout route is working");
-});
+router.post("/logout", logout);
 
 router.get("/profile", (req, res) => {
     res.send("User profile route is working");
