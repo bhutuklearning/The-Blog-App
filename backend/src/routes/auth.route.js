@@ -8,14 +8,8 @@ router.get("/", (req, res) => {
 })
 
 router.post("/register", register);
-
 router.post("/login", login);
-
 router.post("/logout", logout);
-
-router.get("/profile", (req, res) => {
-    res.send("User profile route is working");
-});
 
 
 export default router;
