@@ -10,7 +10,9 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "Please provide name, email and password" });
         }
         const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: "User with this email already exists" });
+        if (existingUser) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -43,10 +45,15 @@ export const login = async (req, res) => {
 
         // include password explicitly because schema has select: false
         const user = await User.findOne({ email }).select("+password");
-        if (!user) return res.status(400).json({ message: "User not found. Please register." });
+        if (!user) {
+            return res.status(400).json({ message: "User not found. Please register." });
+        }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(401).json({ message: "Invalid password" });
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
 
         generateToken(res, user._id); // sets cookie 'jwt'
 

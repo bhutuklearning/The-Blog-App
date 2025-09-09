@@ -2,12 +2,12 @@ import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import {
     getAllBlogs, getBlogById, getMyBlogs, createBlog, updateBlog, deleteBlog,
-    likeBlog, dislikeBlog, addComment
+    likeBlog, dislikeBlog, addComment, editComment, deleteComment
 } from '../controller/blog.controller.js';
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/home", (req, res) => {
     res.send("Welcome to the Blog route of The Blog App.");
 });
 
@@ -29,5 +29,7 @@ router.put("/:id/dislike", protect, dislikeBlog);
 
 // Comment on a blog
 router.post("/:id/comment", protect, addComment);
+router.put("/:id/comment/:commentId", protect, editComment);
+router.delete("/:id/comment/:commentId", protect, deleteComment);
 
 export default router;

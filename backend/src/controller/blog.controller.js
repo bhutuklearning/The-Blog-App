@@ -49,25 +49,27 @@ export const getAllBlogs = async (req, res) => {
 // Public Endpoint - Get Blog by ID
 export const getBlogById = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).populate("author", "name email");
+        const blog = await Blog.findById(req.params.id)
+            .populate("author", "name email");
 
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
         }
 
-        const formattedBlogs = blog.map((blog) => ({
+        const formattedBlog = {
             ...blog.toObject(),
             likesCount: blog.likes.length,
             dislikesCount: blog.dislikes.length,
             commentsCount: blog.comments.length,
-        }));
-        res.json(formattedBlogs);
-    }
-    catch (error) {
+        };
+
+        res.json(formattedBlog);
+    } catch (error) {
         console.error("Get Blog By ID Error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
-}
+};
+
 
 // Protected Endpoint - Get blogs of logged in user
 export const getMyBlogs = async (req, res) => {
@@ -249,5 +251,62 @@ export const addComment = async (req, res) => {
         res.json({ message: "Comment added", comments: blog.comments });
     } catch (error) {
         res.status(500).json({ message: "Error adding comment", error });
+    }
+};
+
+// Protected Endpoint - Edit a comment
+export const editComment = async (req, res) => {
+    try {
+        const { id, commentId } = req.params;
+        const { text } = req.body;
+
+        const blog = await Blog.findById(id);
+        if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+        const comment = blog.comments.id(commentId);
+        if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+        // Ensure only the comment owner can edit
+        if (comment.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Not authorized to edit this comment" });
+        }
+
+        comment.text = sanitizeHtml(text, {
+            allowedTags: [],
+            allowedAttributes: {},
+        });
+
+        await blog.save();
+        res.json({ message: "Comment updated", comment });
+    } catch (error) {
+        console.error("Error editing comment:", error);
+        res.status(500).json({ message: "Error editing comment", error });
+    }
+};
+
+
+// Protected Endpoint - Delete a comment
+export const deleteComment = async (req, res) => {
+    try {
+        const { id, commentId } = req.params;
+
+        const blog = await Blog.findById(id);
+        if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+        const comment = blog.comments.id(commentId);
+        if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+        // Ensure only the comment owner can delete
+        if (comment.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Not authorized to delete this comment" });
+        }
+
+        comment.deleteOne();
+        await blog.save();
+
+        res.json({ message: "Comment deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        res.status(500).json({ message: "Error deleting comment", error });
     }
 };
